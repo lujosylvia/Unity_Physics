@@ -6,8 +6,9 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour {
 
     private Rigidbody rb;
-    private int attemptsCounter;
+    public int attemptsCounter;
     private int hitsCounter;
+	public bool gameOver;
     public float speed;
     public Text attempts;
     public Text hits;
@@ -17,28 +18,31 @@ public class PlayerController : MonoBehaviour {
         rb = GetComponent<Rigidbody>();
         attemptsCounter = 0;
         hitsCounter = 0;
+		gameOver = false;
         attempts.text = "Attempts: " + attemptsCounter.ToString();
         hits.text = "Hits: " + hitsCounter.ToString();
         win.text = "";
     }
     private void FixedUpdate()
     {
-		if (Input.GetKeyDown (KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)) {
-			if (attemptsCounter == 0) {
-				attemptsCounter = 1;
+		if (gameOver == false) {
+			if (Input.GetKeyDown (KeyCode.UpArrow) || Input.GetKeyDown (KeyCode.DownArrow) || Input.GetKeyDown (KeyCode.LeftArrow) || Input.GetKeyDown (KeyCode.RightArrow)) {
+				if (attemptsCounter == 0) {
+					attemptsCounter = 1;
+				} else {
+					attemptsCounter = attemptsCounter + 1;
+				}
+				UpdateUI ();
 			}
-			else {
-				attemptsCounter = attemptsCounter + 1;
-			}
-			UpdateUI ();
+		
+
+			float moveHorizontal = Input.GetAxis ("Horizontal");
+			float moveVertical = Input.GetAxis ("Vertical");
+
+			Vector3 movement = new Vector3 (moveHorizontal, 0.0f, moveVertical);
+
+			rb.AddForce (movement * speed);
 		}
-
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical= Input.GetAxis("Vertical");
-
-        Vector3 movement = new Vector3(moveHorizontal,0.0f,moveVertical);
-
-        rb.AddForce(movement*speed);
     }
 		
     void OnTriggerEnter(Collider other)
@@ -57,6 +61,7 @@ public class PlayerController : MonoBehaviour {
         win.text = "";
         if (hitsCounter >= 2)
         {
+			gameOver = true;
             attempts.text = "";
             hits.text = "";
             win.text = "YOU WIN!!";
